@@ -23,6 +23,12 @@ class SimpleContactForm{
 
         //Add assets like CSS, js files.
         add_action('wp_enqueue_scripts', array($this, 'load_assets'));
+
+        //Add Short Code to add in Gutenberg shortcode component.
+        add_shortcode( 'contact-forms', array($this, 'load_shortcode'));
+
+        //Load javaScript
+        add_action('wp_footer', array($this, 'load_scripts'));
    
 
     }
@@ -63,7 +69,47 @@ class SimpleContactForm{
                 true );     
     }
 
+    public function load_shortcode(){?>
 
+        <div class="simple-contact-form">
+            <h1> Send Us Email </h1>
+            <p>Please fill up the form completely</p>
+
+            <form id="simple-contact-form__form">
+                    <div class="form-group mb-2">
+                            <input type="text" name="name" placeholder="name" class="form-control" />
+                    </div>
+                    <div class="form-group mb-2">
+                            <input type="email" name="email" placeholder="email" class="form-control"  />
+                    </div>
+                    <div class="form-group mb-2">
+                            <input type="tel" name="phone" placeholder="phone" class="form-control" />
+                    </div>
+                    <div class="form-group mb-2">
+                            <textarea placeholder="Enter your message" name="message" class="form-control" ></textarea>
+                    </div>
+                    <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-block w-100">Send Email</button>
+                    </div>
+            </form> 
+        </div>
+   <?php }
+
+   public function load_scripts(){?>
+        <script>
+            (function($){
+                    $('#simple-contact-form__form').submit(function(event){
+                        event.preventDefault();
+                        alert("This is ")
+                             
+
+                    });
+
+            })(jQuery)
+
+        </script>
+
+   <?php }
 }
 
 new SimpleContactForm;
