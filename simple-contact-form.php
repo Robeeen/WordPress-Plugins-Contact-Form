@@ -10,7 +10,7 @@ Text Domain: simple-contact-form
 
 if( !defined('ABSPATH'))
 {
-    echo "Don't be foolish!";
+    
     exit;
 }
 
@@ -29,6 +29,9 @@ class SimpleContactForm{
 
         //Load javaScript
         add_action('wp_footer', array($this, 'load_scripts'));
+
+        //Create-register a REST API with hooks 'rest_api_init'
+        add_action('rest_api-init', array($this, 'register_rest_api'));
    
 
     }
@@ -97,11 +100,25 @@ class SimpleContactForm{
 
    public function load_scripts(){?>
         <script>
+            //this nonce going to create a number, 
+            //which can be attached below headers x-wp-nonce, 
+            //so that later on we can verify at backend of wordpress.
+            var nonce = '<?php echo wp_create_nonce('wp_rest');?>';
+
             (function($){
                     $('#simple-contact-form__form').submit(function(event){
                         event.preventDefault();
-                        alert("This is ")
-                             
+                        
+                        var form = $(this).serialize();
+
+                        //console.log(form);
+
+                        $.ajax({
+                            method: 'post',
+                            url: '<?php echo get_rest_url(null, 'simple-contact-form/v1/send-email');?>', //get_rest_url gives xyz.com/wp-json/
+                            headers: { 'x-wp-nonce': nonce },
+                            data: form
+                        })                      
 
                     });
 
@@ -110,6 +127,23 @@ class SimpleContactForm{
         </script>
 
    <?php }
+
+   public function register_rest_api(){
+
+        //wp-json/simple-contact-form/v1/send-email -- route
+
+        register_rest_route( 
+            'simple-contact-form/v1',
+            'send-email',
+            array(
+
+                'methods' => 'POST',
+                'callback' => array($this, 'handle_contact_form')
+            ));
+   }
+   public function handle_contact_form($data){
+        echo "Endpoint is working";
+   }
 }
 
 new SimpleContactForm;
