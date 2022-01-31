@@ -160,6 +160,9 @@ class SimpleContactForm{
             'post_title' => 'Contact Inqury',
             'status' => 'publish'
        ]);
+       if($post_id){
+           return new WP_REST_Response('Thank you for sending email', 200);
+       }
    }
 }
 
