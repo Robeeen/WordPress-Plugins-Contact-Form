@@ -114,9 +114,9 @@ class SimpleContactForm{
                         //console.log(form);
 
                         $.ajax({
-                            method: 'post',
-                            url: '<?php echo get_rest_url(null, 'simple-contact-form/v1/send-email');?>', //get_rest_url gives xyz.com/wp-json/
-                            headers: { 'x-wp-nonce': nonce },
+                            method: 'POST',
+                            url: '<?php echo get_rest_url(null, 'simple-contact-form/v1/send-email');?>',
+                            headers: { 'x-WP-Nonce': nonce },
                             data: form
                         })                      
 
@@ -134,7 +134,7 @@ class SimpleContactForm{
 
         register_rest_route( 
             'simple-contact-form/v1',
-            'send-email',
+            'send-email', //route
             array(
 
                 'methods' => 'POST',
@@ -143,6 +143,23 @@ class SimpleContactForm{
    }
    public function handle_contact_form($data){
         echo "Endpoint is working";
+
+       $headers = $data->get_headers();
+       $params = $data->get_params();
+
+       echo json_encode($headers);
+      $nonce = $headers['x_wp_nonce'][0];
+
+       if(!wp_verify_nonce( $nonce, 'wp_rest' )){
+           //echo 'This nonce is not correct';
+           return new WP_REST_Response('Message not sent', 422);
+       }
+
+       $post_id = wp_insert_post( [
+            'post_type' => 'simple_contact_form',
+            'post_title' => 'Contact Inqury',
+            'status' => 'publish'
+       ]);
    }
 }
 
